@@ -1,3 +1,6 @@
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+
 function normalizeURL(url) {
   const newUrl = new URL(url);
   let path = newUrl.pathname;
@@ -9,6 +12,21 @@ function normalizeURL(url) {
   }`;
 }
 
+function getURLsFromHTML(htmlBody, baseURL) {
+  const { document } = new JSDOM(htmlBody).window;
+  const allAnchors = document.querySelectorAll('a');
+  const links = [...allAnchors].map(a => a.href);
+
+  return links.map(link => {
+    if (link.startsWith('http')) {
+      return link;
+    } else {
+      return baseURL + link;
+    }
+  });
+}
+
 module.exports = {
   normalizeURL,
+  getURLsFromHTML,
 };
