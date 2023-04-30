@@ -26,20 +26,43 @@ function getURLsFromHTML(htmlBody, baseURL) {
   });
 }
 
-async function crawlPage(baseURL) {
+async function crawlPage(baseURL, currentURL, pages) {
+  const currentUrlObj = new URL(currentURL);
+  const baseUrlObj = new URL(baseURL);
+  if (currentUrlObj.hostname !== baseUrlObj.hostname) {
+    return pages;
+  }
+
+  const normalizedURL = normalizeURL(currentURL);
+
+  if (pages[normalizedURL] > 0) {
+    pages[normalizedURL]++;
+    return pages;
+  }
+  pages[normalizedURL] = 1;
+
+  console.log(`Crawling ${normalizedURL}`);
+
   try {
-    const response = await fetch(baseURL);
+    const response = await fetch(currentURL);
     if (!response.ok) {
-      throw new Error(`Something went wrong. Status code ${response.status}`);
+      console.error(`Something went wrong. Status code ${response.status}`);
+      return pages;
     }
     if (!response.headers.get('Content-Type').includes('text/html')) {
-      throw new Error('Wrong content type');
+      console.error('Wrong content type');
+      return pages;
     }
-    const body = await response.text();
-    console.log(body);
+    const html = await response.text();
+    const urls = getURLsFromHTML(html, baseURL);
+    for (const url of urls) {
+      pages = await crawlPage(baseURL, url, pages);
+    }
   } catch (error) {
     console.error(error.message);
   }
+
+  return pages;
 }
 
 module.exports = {

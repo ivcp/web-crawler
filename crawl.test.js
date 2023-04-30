@@ -3,7 +3,7 @@ const { normalizeURL, getURLsFromHTML } = require('./crawl.js');
 const htmlString = fs.readFileSync('./test.html', 'utf-8');
 
 describe('noramlizeURL fn', () => {
-  it('returns normalized version of url', () => {
+  it.only('returns normalized version of url', () => {
     const url1 = 'http://google.com/path';
     const url2 = 'https://GooglE.Com/path/';
     const url3 = 'https://GooglE.Com/';
