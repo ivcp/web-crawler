@@ -26,7 +26,24 @@ function getURLsFromHTML(htmlBody, baseURL) {
   });
 }
 
+async function crawlPage(baseURL) {
+  try {
+    const response = await fetch(baseURL);
+    if (!response.ok) {
+      throw new Error(`Something went wrong. Status code ${response.status}`);
+    }
+    if (!response.headers.get('Content-Type').includes('text/html')) {
+      throw new Error('Wrong content type');
+    }
+    const body = await response.text();
+    console.log(body);
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
 module.exports = {
   normalizeURL,
   getURLsFromHTML,
+  crawlPage,
 };
